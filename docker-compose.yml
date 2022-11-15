@@ -1,0 +1,32 @@
+version: '3.8'
+networks:
+  external_network:
+  internal_network:
+    internal: true
+services:
+  redis:
+    container_name: mastodon-redis-1
+    image: bitnami/redis:7.0
+    restart: always
+    env_file: .env
+    networks:
+      - internal_network
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+    volumes:
+      - "./redis:/bitnami/redis"
+  web:
+    container_name: mastodon-web-1
+    image: tootsuite/mastodon:v4.0.2
+    restart: always
+    env_file: .env
+    command: bash -c "rm -f /mastodon/tmp/pids/server.pid; bundle exec rails s -p 3000"
+    networks:
+      - external_network
+      - internal_network
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q --spider --proxy=off localhost:3000/health || exit 1']
+    ports:
+      - '127.0.0.1:3000:3000'
+    volumes:
+      - ./public:/mastodon/public
