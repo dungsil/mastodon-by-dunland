@@ -47,6 +47,8 @@ services:
       - '127.0.0.1:4000:4000'
     depends_on:
       - redis
+    volumes:
+      - "./streaming:/opt/mastodon/streaming"
   sidekiq:
     image: tootsuite/mastodon:v4.0.2
     restart: always
